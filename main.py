@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Query
+from fastapi import FastAPI, Query, Response
 import weaviate
 from weaviate.auth import AuthApiKey
 from typing import List
@@ -29,6 +29,9 @@ client = weaviate.connect_to_weaviate_cloud(
 
 app = FastAPI()
 
+@app.head("/")
+def head_root():
+    return Response(status_code=200)
 
 @app.get("/")
 def read_root():
