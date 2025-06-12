@@ -3,3 +3,5 @@ uvicorn[standard]
 weaviate-client
 python-dotenv
 requests
+pydantic[email]
+
