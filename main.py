@@ -1,4 +1,5 @@
 from fastapi import FastAPI, Query, Response
+from listeners import router as listeners_router
 import weaviate
 from weaviate.auth import AuthApiKey
 from typing import List
@@ -129,3 +130,5 @@ def get_article_by_uuid(uuid: UUID):
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+app.include_router(listeners_router)
