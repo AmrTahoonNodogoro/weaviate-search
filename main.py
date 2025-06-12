@@ -42,7 +42,10 @@ def read_root():
 @app.get("/search_articles", response_model=List[dict])
 def search_articles(q: str = Query(..., description="Search query string"),
                     date_from: str = Query(None, description="Start date in YYYY-MM-DD format"),
-                    date_to: str = Query(None, description="End date in YYYY-MM-DD format")):
+                    date_to: str = Query(None, description="End date in YYYY-MM-DD format"),
+                    source: str = Query(None, description="Filter by source: CAPublicNotice or CEQAnet"),
+                    type: str = Query(None, description="Filter by type of article"),
+                    location: str = Query(None, description="Filter by location")):
 
     try:
         all_articles_collection = client.collections.get("Total_Articles")
@@ -63,13 +66,26 @@ def search_articles(q: str = Query(..., description="Search query string"),
                 else:
                     date_filter = to_filter 
         text_filter=Filter.by_property("content").contains_all([q])
-        filter_data=text_filter & date_filter  
+            
+        filter_data = text_filter & date_filter if date_filter else text_filter  
+        
+        if source:
+            source_filter = Filter.by_property("source").equal(source)
+            filter_data = filter_data & source_filter
+
+        if type:
+            type_filter = Filter.by_property("type").equal(type)
+            filter_data = filter_data & type_filter
+
+        if location:
+            location_filter = Filter.by_property("location").equal(location)
+            filter_data = filter_data & location_filter
 
         all_articles_results = all_articles_collection.query.bm25(
             query=q,
             query_properties=["content"],
             return_properties=["source","title", "url", "content","location","date","type"],
-            limit=10000,
+            limit=100000,
             filters=filter_data
         )
 
