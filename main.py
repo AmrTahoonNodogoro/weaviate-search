@@ -3,7 +3,7 @@ from listeners import router as listeners_router
 from fetch_data import router as fetch_router
 import weaviate
 from weaviate.auth import AuthApiKey
-from typing import List
+from typing import List, Optional
 from dotenv import load_dotenv
 from datetime import datetime, timezone
 from weaviate.collections.classes.filters import Filter
