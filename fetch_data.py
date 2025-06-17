@@ -1,8 +1,10 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, APIRouter
 import weaviate
 from weaviate.auth import AuthApiKey
+from weaviate.collections.classes.config import Property, DataType
 from typing import List
 import os
+
 
 
 WEAVIATE_URL = os.getenv("WEAVIATE_URL")
