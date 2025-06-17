@@ -148,5 +148,48 @@ def get_article_by_uuid(uuid: UUID):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+
+@app.get("/RAG_search_articles", response_model=List[dict])
+def RAG_search_articles(q: str = Query(..., description="Search query string")):
+
+    try:
+        all_articles_collection = client.collections.get("Articles_OpenAI")
+
+       
+        all_articles_results = all_articles_collection.generate.near_text(
+            query=q,
+            return_properties=["title", "url"],
+            limit=5,
+            # distance=0.9,
+            single_prompt="Answer the user's question as accurately as possible using ONLY the information in the {title} and {content} in only one sentance max 200 character",
+            return_metadata=MetadataQuery(distance=True)
+          
+        )
+       
+        results = []
+        seen_urls = set()
+        for obj in all_articles_results.objects:
+            props = obj.properties
+            # content = props.get("content", "")
+            url = props.get("url")
+
+            if url in seen_urls:
+                continue
+
+            results.append({
+
+                "title": props.get("title"),
+                "url": url,
+                "Single prompt result": {obj.generative.text},
+
+            })
+            seen_urls.add(url)
+        print(len(results))
+        return results
+
+    except Exception as e:
+        return [{"error": str(e)}]
+ 
+
 app.include_router(listeners_router)
 app.include_router(fetch_router)
