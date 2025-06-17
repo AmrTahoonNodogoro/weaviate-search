@@ -9,6 +9,7 @@ from datetime import datetime, timezone
 from weaviate.collections.classes.filters import Filter
 from uuid import UUID
 from fastapi.exceptions import HTTPException
+from weaviate.classes.query import MetadataQuery
 
 import os
 
