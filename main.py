@@ -45,9 +45,9 @@ def read_root():
 def search_articles(q: str = Query(..., description="Search query string"),
                     date_from: str = Query(None, description="Start date in YYYY-MM-DD format"),
                     date_to: str = Query(None, description="End date in YYYY-MM-DD format"),
-                    source: str = Query(None, description="Filter by source: CAPublicNotice or CEQAnet"),
-                    type: str = Query(None, description="Filter by type of article"),
-                    location: str = Query(None, description="Filter by location")):
+                    source: Optional[List[str]] = Query(None, description="Filter by source: CAPublicNotice or CEQAnet"),
+                    type: Optional[List[str]] = Query(None, description="Filter by type of article"),
+                    location: Optional[List[str]] = Query(None, description="Filter by location")):
 
     try:
         all_articles_collection = client.collections.get("Total_Articles")
@@ -72,15 +72,15 @@ def search_articles(q: str = Query(..., description="Search query string"),
         filter_data = text_filter & date_filter if date_filter else text_filter  
         
         if source:
-            source_filter = Filter.by_property("source").equal(source)
+            source_filter = Filter.by_property("source").contains_any(source)
             filter_data = filter_data & source_filter
 
         if type:
-            type_filter = Filter.by_property("type").equal(type)
+            type_filter = Filter.by_property("type").contains_any(type)
             filter_data = filter_data & type_filter
 
         if location:
-            location_filter = Filter.by_property("location").equal(location)
+            location_filter = Filter.by_property("location").contains_any(location)
             filter_data = filter_data & location_filter
 
         all_articles_results = all_articles_collection.query.bm25(
