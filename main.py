@@ -151,18 +151,28 @@ def get_article_by_uuid(uuid: UUID):
 
 
 @app.get("/RAG_search_articles", response_model=List[dict])
-def RAG_search_articles(q: str = Query(..., description="Search query string")):
+def RAG_search_articles(q: str = Query(..., description="Search query string"),
+                       prompt: str = Query(None, description="AI Prompt string")):
 
     try:
         all_articles_collection = client.collections.get("Articles_OpenAI")
+        if not prompt:
+            prompt=f"""
+                    You are a research assistant. A user has a question, and you've been given documents from a database.
 
+                    - Answer the user's question as accurately as possible using ONLY the information in the documents.
+                    User question:
+                    {q}
+                    """
+       
        
         all_articles_results = all_articles_collection.generate.near_text(
             query=q,
             return_properties=["title", "url"],
             limit=5,
             # distance=0.9,
-            single_prompt="Answer the user's question as accurately as possible using ONLY the information in the {title} and {content} in only one sentance max 200 character",
+            single_prompt=prompt+" using ONLY the information in the {title} and {content} and {location} in only one sentance",
+            # single_prompt="Answer the user's question as accurately as possible using ONLY the information in the {title} and {content} in only one sentance max 200 character",
             return_metadata=MetadataQuery(distance=True)
           
         )
