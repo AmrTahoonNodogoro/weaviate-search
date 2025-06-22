@@ -168,7 +168,7 @@ def RAG_search_articles(q: str = Query(..., description="Search query string"),
        
         all_articles_results = all_articles_collection.generate.near_text(
             query=q,
-            return_properties=["title", "url"],
+            return_properties=["title", "url", "content"],
             limit=5,
             # distance=0.9,
             single_prompt=prompt+" using ONLY the information in the {title} and {content} and {location} in only one sentance",
@@ -179,14 +179,19 @@ def RAG_search_articles(q: str = Query(..., description="Search query string"),
        
         results = []
         seen_urls = set()
+        seen_contents = set()
         for obj in all_articles_results.objects:
             props = obj.properties
-            # content = props.get("content", "")
+            content = props.get("content", "")
             url = props.get("url")
 
             if url in seen_urls:
                 continue
-
+                
+            content_hash = hash(content.strip().lower())
+            if content_hash in seen_contents:
+                continue
+                
             results.append({
 
                 "title": props.get("title"),
@@ -195,6 +200,7 @@ def RAG_search_articles(q: str = Query(..., description="Search query string"),
 
             })
             seen_urls.add(url)
+            seen_contents.add(content_hash)
         print(len(results))
         return results
 
