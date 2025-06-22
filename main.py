@@ -67,7 +67,7 @@ def search_articles(q: str = Query(..., description="Search query string"),
                     date_filter = date_filter & to_filter 
                 else:
                     date_filter = to_filter 
-        text_filter=Filter.by_property("content").contains_all([q])
+        text_filter=Filter.by_property("content").contains_any([q])
             
         filter_data = text_filter & date_filter if date_filter else text_filter  
         
