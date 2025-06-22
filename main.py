@@ -101,7 +101,7 @@ def search_articles(q: str = Query(..., description="Search query string"),
             normalized_content = normalized_content.replace("\n", " ")
             normalized_query = q.lower().replace("-", " ")
             match_index = normalized_content.find(normalized_query)
-            if url in seen_urls:
+            if url in seen_urls or match_index == -1:
                 continue
             # Get a snippet of 40 characters before and after the match
             start = max(match_index - 100, 0)
