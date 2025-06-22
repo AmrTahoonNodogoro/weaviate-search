@@ -169,7 +169,7 @@ def RAG_search_articles(q: str = Query(..., description="Search query string"),
         all_articles_results = all_articles_collection.generate.near_text(
             query=q,
             return_properties=["title", "url", "content"],
-            limit=5,
+            limit=20,
             # distance=0.9,
             single_prompt=prompt+" using ONLY the information in the {title} and {content} and {location} in only one sentance",
             # single_prompt="Answer the user's question as accurately as possible using ONLY the information in the {title} and {content} in only one sentance max 200 character",
